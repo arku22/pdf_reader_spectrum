@@ -2,6 +2,7 @@ name: pdf_reader_spectrum
 dependencies:
   - python=3.10
   - pip
+  - pandas=1.5.3
   - pip:
       - pypdf2==3.0.1
       - python-dotenv==1.0.0
