@@ -2,3 +2,5 @@
 .idea/
 assets/*
 !assets/sample.pdf
+__pycache__/
+output.xlsx
