@@ -14,6 +14,7 @@ df_columns = {"statement_date": None,
               "service_to": None,
               "wifi_service_charge": pd.Series(dtype='float'),
               "spectrum_internet_charge": pd.Series(dtype='float'),
+              "one_time_charge": None,
               "promo_applied": pd.Series(dtype='bool'),
               "promo_discount": pd.Series(dtype='float'),
               "taxes": pd.Series(dtype='float'),
@@ -24,6 +25,7 @@ df = pd.DataFrame(df_columns)
 for filename in pdf_filenames:
 
     promo_flag = False
+    one_time_charges_flag = False
     print(f"Reading file {filename}")
     reader = Reader(os.path.join(pdf_dir, filename))
 
@@ -51,6 +53,12 @@ for filename in pdf_filenames:
         mo = promo_discount_expiry_regex.search(pg_2_txt)
         promo_discount_expiry_date = datetime.strptime(mo.group(1), "%m/%d/%y").date()
 
+    one_time_charges_regex = re.compile(r"one-time charges total\s+\$(\d+.\d\d)", re.IGNORECASE)
+    mo = one_time_charges_regex.search(pg_2_txt)
+    if mo:
+        one_time_charges_flag = True
+        one_time_charges_total = float(mo.group(1))
+
     taxes_regex = re.compile(r"taxes, fees and charges total \$(\d+.\d\d)", re.IGNORECASE)
     mo = taxes_regex.search(pg_2_txt)
     taxes_value = float(mo.group(1))
@@ -63,12 +71,15 @@ for filename in pdf_filenames:
     computed_total = wifi_service_charge + spectrum_internet_charge + taxes_value
     if promo_flag:
         computed_total += promotional_discount_value
+    if one_time_charges_flag:
+        computed_total += one_time_charges_total
 
     temp = {"statement_date": service_start_date,
             "service_from": service_start_date,
             "service_to": service_end_date,
             "wifi_service_charge": wifi_service_charge,
             "spectrum_internet_charge": spectrum_internet_charge,
+            "one_time_charge": one_time_charges_total,
             "promo_applied": promo_flag,
             "promo_discount": promotional_discount_value,
             "taxes": taxes_value,
