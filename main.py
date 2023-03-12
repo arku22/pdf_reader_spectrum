@@ -46,9 +46,10 @@ for filename in pdf_filenames:
 
     promotional_discount_regex = re.compile(r"promotional discount (-\d+.\d\d)", re.IGNORECASE)
     mo = promotional_discount_regex.search(pg_2_txt)
-    promotional_discount_value = float(mo.group(1))
     if mo:
         promo_flag = True
+        promotional_discount_value = float(mo.group(1))
+
         promo_discount_expiry_regex = re.compile(r"your promotional price will expire on (\d\d/\d\d/\d\d)", re.IGNORECASE)
         mo = promo_discount_expiry_regex.search(pg_2_txt)
         promo_discount_expiry_date = datetime.strptime(mo.group(1), "%m/%d/%y").date()
@@ -79,9 +80,9 @@ for filename in pdf_filenames:
             "service_to": service_end_date,
             "wifi_service_charge": wifi_service_charge,
             "spectrum_internet_charge": spectrum_internet_charge,
-            "one_time_charge": one_time_charges_total,
+            "one_time_charge": one_time_charges_total if one_time_charges_flag else None,
             "promo_applied": promo_flag,
-            "promo_discount": promotional_discount_value,
+            "promo_discount": promotional_discount_value if promo_flag else None,
             "taxes": taxes_value,
             "computed_total": computed_total,
             "printed_total": printed_total,
